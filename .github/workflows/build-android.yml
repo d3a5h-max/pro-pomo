@@ -15,7 +15,6 @@ jobs:
         with:
           distribution: temurin
           java-version: "17"
-      - 
       - name: Install Android build dependencies
         run: |
           sudo apt-get update
