@@ -1,19 +1,68 @@
+
 name: Build Windows EXE
+
 on:
   workflow_dispatch:
   push:
-    tags: ["v*"]
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
 jobs:
   build:
+    name: Build Pro Pomodoro for Windows
     runs-on: windows-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - run: python -m pip install -r requirements.txt pyinstaller
-      - run: pyinstaller --noconfirm --clean --windowed --name ProPomodoro --collect-all kivy --collect-all plyer main.py
-      - uses: actions/upload-artifact@v4
+          cache: pip
+
+      - name: Upgrade pip
+        run: python -m pip install --upgrade pip
+
+      - name: Install pinned dependencies
+        run: |
+          python -m pip install kivy==2.3.1
+          python -m pip install plyer==2.1.0
+          python -m pip install pyinstaller==6.11.1
+
+      - name: Check dependencies
+        run: python -m pip check
+
+      - name: Build Windows application
+        run: |
+          python -m PyInstaller `
+            --noconfirm `
+            --clean `
+            --windowed `
+            --name ProPomodoro `
+            --collect-data kivy `
+            --collect-binaries kivy `
+            --collect-submodules plyer `
+            --exclude-module kivy.tests `
+            main.py
+
+      - name: Verify executable
+        shell: pwsh
+        run: |
+          if (!(Test-Path "dist/ProPomodoro/ProPomodoro.exe")) {
+            Write-Error "ProPomodoro.exe was not generated"
+            exit 1
+          }
+          Write-Host "Windows executable successfully generated."
+
+      - name: Upload Windows EXE artifact
+        uses: actions/upload-artifact@v4
         with:
           name: ProPomodoro-Windows-EXE
           path: dist/ProPomodoro/
+          if-no-files-found: error
+          retention-days: 14
