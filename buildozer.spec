@@ -10,7 +10,8 @@ orientation = portrait
 fullscreen = 0
 android.permissions = VIBRATE,POST_NOTIFICATIONS,READ_MEDIA_IMAGES,READ_MEDIA_AUDIO
 android.api = 35
-android.minapi = 23
+android.minapi = 24
+android.ndk = 28c
 android.archs = arm64-v8a
 android.accept_sdk_license = True
 
